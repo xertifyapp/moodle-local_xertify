@@ -55,6 +55,6 @@ if ($hassiteconfig) {
         'local_xertify/dryrun',
         get_string('dryrun', 'local_xertify'),
         get_string('dryrun_desc', 'local_xertify'),
-        1
+        0
     ));
 }

@@ -21,9 +21,9 @@ Configurar:
 - `Xertify API URL`: `https://api.xertify.co/v4createRequest`
 - `Xertify API token`: token entregado por Xertify
 - `Default document type`: `1`
-- `Dry run`: desactivado para emitir certificados reales
+- `Solo simular - no emitir certificados`: desactivado
 
-Recomendacion: para primera prueba dejar `Dry run` activado. Luego de validar, desactivarlo.
+Recomendacion: mantener `Solo simular - no emitir certificados` desactivado para cualquier prueba donde se quiera validar la emision real en Xertify. Si se activa, Moodle no llama la API de Xertify y no se emite certificado.
 
 ## 3. Configuracion por curso
 
@@ -109,5 +109,5 @@ Si el certificado no se emite, validar:
 - El `templateId` pertenece a la cuenta Xertify.
 - El `groupId` pertenece a la cuenta Xertify.
 - El token API es valido.
-- `Dry run` esta desactivado para emision real.
+- `Solo simular - no emitir certificados` esta desactivado.
 - Las notificaciones del curso estan activadas solo si el cliente quiere que Xertify envie mensajes.

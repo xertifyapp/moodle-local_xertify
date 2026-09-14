@@ -25,6 +25,8 @@
 require_once(__DIR__ . '/../../config.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$resetattempts = optional_param('resetattempts', 0, PARAM_BOOL);
+$resetissueid = optional_param('resetissueid', 0, PARAM_INT);
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $context = context_course::instance($courseid);
 
@@ -40,6 +42,19 @@ $PAGE->set_heading($course->fullname);
 
 $record = $DB->get_record('local_xertify_course', ['courseid' => $courseid]);
 $form = new \local_xertify\form\course_settings_form($url, ['courseid' => $courseid]);
+
+if ($resetattempts) {
+    require_sesskey();
+    $DB->delete_records('local_xertify_issue', ['courseid' => $courseid]);
+    redirect($url, get_string('resetattemptsdone', 'local_xertify'), null, \core\output\notification::NOTIFY_SUCCESS);
+}
+
+if ($resetissueid) {
+    require_sesskey();
+    $issue = $DB->get_record('local_xertify_issue', ['id' => $resetissueid, 'courseid' => $courseid], '*', MUST_EXIST);
+    $DB->delete_records('local_xertify_issue', ['id' => $issue->id]);
+    redirect($url, get_string('resetattemptdone', 'local_xertify'), null, \core\output\notification::NOTIFY_SUCCESS);
+}
 
 if ($record) {
     $form->set_data($record);
@@ -86,4 +101,70 @@ if ($data = $form->get_data()) {
 
 echo $OUTPUT->header();
 $form->display();
+
+$attempts = $DB->get_records_sql(
+    "SELECT xi.id,
+            xi.userid,
+            xi.status,
+            xi.responsecode,
+            xi.timemodified,
+            u.firstname,
+            u.lastname,
+            u.email
+       FROM {local_xertify_issue} xi
+       JOIN {user} u ON u.id = xi.userid
+      WHERE xi.courseid = ?
+   ORDER BY xi.timemodified DESC",
+    [$courseid],
+    0,
+    20
+);
+
+if ($attempts) {
+    echo $OUTPUT->heading(get_string('recentattempts', 'local_xertify'), 3);
+
+    $table = new html_table();
+    $table->head = [
+        get_string('student', 'local_xertify'),
+        get_string('status', 'local_xertify'),
+        get_string('responsecode', 'local_xertify'),
+        get_string('timemodified', 'local_xertify'),
+        get_string('actions'),
+    ];
+
+    foreach ($attempts as $attempt) {
+        $resetoneurl = new moodle_url('/local/xertify/course_settings.php', [
+            'courseid' => $courseid,
+            'resetissueid' => $attempt->id,
+            'sesskey' => sesskey(),
+        ]);
+        $resetonebutton = $OUTPUT->single_button(
+            $resetoneurl,
+            get_string('resetattempt', 'local_xertify'),
+            'post'
+        );
+
+        $table->data[] = [
+            fullname($attempt) . html_writer::empty_tag('br') . s($attempt->email),
+            s($attempt->status),
+            $attempt->responsecode ? s((string)$attempt->responsecode) : '-',
+            userdate($attempt->timemodified),
+            $resetonebutton,
+        ];
+    }
+
+    echo html_writer::table($table);
+}
+
+$reseturl = new moodle_url('/local/xertify/course_settings.php', [
+    'courseid' => $courseid,
+    'resetattempts' => 1,
+    'sesskey' => sesskey(),
+]);
+echo $OUTPUT->single_button(
+    $reseturl,
+    get_string('resetattempts', 'local_xertify'),
+    'post',
+    ['class' => 'mt-3', 'tooltip' => get_string('resetattemptsconfirm', 'local_xertify')]
+);
 echo $OUTPUT->footer();

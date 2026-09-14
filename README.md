@@ -10,8 +10,10 @@ Xertify Certificates is a Moodle local plugin that issues Xertify digital certif
 - Configurable email, SMS, and WhatsApp notification flags.
 - Dynamic certificate fields from Moodle course data and custom user profile fields.
 - Course-level dynamic certificate fields managed by course administrators.
-- Dry-run mode for testing without calling the Xertify API.
+- Optional simulation mode that records requests locally without calling the Xertify API.
 - Local audit records for issuing attempts and API responses.
+- Course-level issuing-attempt reset action for repeated test runs.
+- Course backup and restore support for Xertify course configuration.
 
 ## Requirements
 
@@ -91,6 +93,10 @@ Example:
 For Xertify templates, the Moodle custom profile field short name should match the template variable. For example, `${ciudad}` should use a Moodle custom profile field with short name `ciudad`.
 
 Course-level dynamic data is recommended for variables that are the same for all learners in a course, such as `evento`, `intensidad`, `ciudad`, `tipoevento`, or `fechaevento`.
+
+## Repeating Tests
+
+The plugin avoids duplicate Xertify API calls for the same learner and course once an issuing attempt has been recorded. To repeat tests with the same learner, open the course Xertify settings page and use **Clear attempt** in the recent attempts table before completing the course again. Use **Clear issuing attempts** only when you need to clear all local issuing attempts for the course.
 
 ## Privacy
 

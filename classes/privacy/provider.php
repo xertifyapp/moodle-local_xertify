@@ -48,6 +48,7 @@ class provider implements \core_privacy\local\metadata\provider {
             'courseid' => 'privacy:metadata:local_xertify_issue:courseid',
             'userid' => 'privacy:metadata:local_xertify_issue:userid',
             'status' => 'privacy:metadata:local_xertify_issue:status',
+            'requesthash' => 'privacy:metadata:local_xertify_issue:requesthash',
             'responsecode' => 'privacy:metadata:local_xertify_issue:responsecode',
             'responsebody' => 'privacy:metadata:local_xertify_issue:responsebody',
             'timecreated' => 'privacy:metadata:local_xertify_issue:timecreated',

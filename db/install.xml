@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/xertify/db" VERSION="2026061200" COMMENT="Xertify Moodle integration">
+<XMLDB PATH="local/xertify/db" VERSION="2026073000" COMMENT="Xertify Moodle integration">
   <TABLES>
     <TABLE NAME="local_xertify_course" COMMENT="Xertify configuration by Moodle course">
       <FIELDS>

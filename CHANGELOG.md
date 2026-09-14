@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 - 2026-07-30
+
+- Added course backup and restore support for Xertify course configuration.
+- Added course issuing-attempt reset action to simplify repeated testing.
+- Added missing capability and reset-action language strings.
+
 ## 1.0.1 - 2026-07-22
 
 - Added course-level dynamic data fields managed from the Xertify course settings page.
