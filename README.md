@@ -14,6 +14,10 @@ Xertify Certificates is a Moodle local plugin that issues Xertify digital certif
 - Local audit records for issuing attempts and API responses.
 - Course-level issuing-attempt reset action for repeated test runs.
 - Course backup and restore support for Xertify course configuration.
+- Learner-facing **My Xertify certificate** page after successful issuance.
+- Inline certificate PDF viewing and secure PDF download from Moodle.
+- Direct certificate verification link to the Xertify Wallet.
+- Certificate PDFs are retrieved from Xertify on demand and are not stored permanently in Moodle.
 
 ## Requirements
 
@@ -98,9 +102,21 @@ Course-level dynamic data is recommended for variables that are the same for all
 
 The plugin avoids duplicate Xertify API calls for the same learner and course once an issuing attempt has been recorded. To repeat tests with the same learner, open the course Xertify settings page and use **Clear attempt** in the recent attempts table before completing the course again. Use **Clear issuing attempts** only when you need to clear all local issuing attempts for the course.
 
+## Student Certificate Access
+
+After Xertify successfully issues a certificate, the learner can access **My Xertify certificate** from the Moodle course.
+
+The certificate page allows the learner to:
+
+- View the certificate PDF inside Moodle.
+- Download the certificate PDF.
+- Open the public certificate verification page in the Xertify Wallet.
+
+Moodle stores the Xertify generation ID, certificate code, and verification URL. The PDF itself is retrieved from Xertify on demand through an authenticated server-to-server request and is not stored permanently in Moodle.
+
 ## Privacy
 
-This plugin sends certificate recipient data to the configured Xertify API. It also stores local issuing attempts for audit and troubleshooting. See the Moodle privacy metadata declared in `classes/privacy/provider.php`.
+This plugin sends certificate recipient data to the configured Xertify API. It stores local issuing-attempt metadata, including the Xertify generation ID, certificate code, and verification URL, for audit and certificate access. Certificate PDF/Base64 content is not stored permanently in Moodle. See the Moodle privacy metadata declared in `classes/privacy/provider.php`.
 
 ## License
 

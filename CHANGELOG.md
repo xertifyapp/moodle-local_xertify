@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3 - 2026-09-15
+
+- Added learner-facing **My Xertify certificate** page inside Moodle courses.
+- Added secure inline certificate PDF viewing and PDF download.
+- Added direct certificate verification link to the Xertify Wallet.
+- Stores Xertify generation ID, certificate code, and verification URL for issued certificates.
+- Retrieves certificate PDFs from Xertify on demand using server-to-server authentication.
+- Certificate PDF/Base64 content is not stored permanently in Moodle.
+- Existing stored API responses are sanitized during upgrade to remove embedded PDF Base64 where present.
+
 ## 1.0.2 - 2026-07-30
 
 - Added course backup and restore support for Xertify course configuration.
