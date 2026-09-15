@@ -179,5 +179,4 @@ class client {
 
         return $url . rtrim($basepath, '/') . '/' . ltrim($endpoint, '/');
     }
-
 }
