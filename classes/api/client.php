@@ -73,4 +73,110 @@ class client {
             'ok' => $code >= 200 && $code < 300,
         ];
     }
+
+    /**
+     * Retrieve an issued certificate PDF from Xertify.
+     *
+     * @param string $certificatecode Xertify certificate code.
+     * @param string $language Preferred language.
+     * @return array Response information and decoded PDF bytes.
+     */
+    public function get_pdf(string $certificatecode, string $language = 'es'): array {
+        $pdfurl = $this->build_endpoint_url('getPdf');
+        if ($pdfurl === '') {
+            return [
+                'ok' => false,
+                'code' => 0,
+                'pdf' => null,
+            ];
+        }
+
+        $payload = [
+            'codeCertificate' => $certificatecode,
+            'language' => $language,
+            'type' => 'pdf',
+            'stored' => true,
+            'viewMode' => 'regular',
+        ];
+
+        $curl = new \curl();
+        $curl->setHeader([
+            'Authorization: Bearer ' . $this->token,
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ]);
+
+        $response = $curl->post($pdfurl, json_encode($payload), [
+            'CURLOPT_TIMEOUT' => 90,
+            'CURLOPT_RETURNTRANSFER' => true,
+        ]);
+
+        $info = $curl->get_info();
+        $code = isset($info['http_code']) ? (int)$info['http_code'] : 0;
+
+        if ($code < 200 || $code >= 300 || !is_string($response)) {
+            return [
+                'ok' => false,
+                'code' => $code,
+                'pdf' => null,
+            ];
+        }
+
+        $decoded = json_decode($response, true);
+        if (!is_array($decoded) || empty($decoded['file']) || !is_string($decoded['file'])) {
+            return [
+                'ok' => false,
+                'code' => $code,
+                'pdf' => null,
+            ];
+        }
+
+        $pdf = base64_decode($decoded['file'], true);
+        if ($pdf === false || strlen($pdf) < 5 || substr($pdf, 0, 5) !== '%PDF-') {
+            return [
+                'ok' => false,
+                'code' => $code,
+                'pdf' => null,
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'code' => $code,
+            'pdf' => $pdf,
+        ];
+    }
+
+    /**
+     * Build another Xertify API endpoint from the configured API URL.
+     *
+     * Preserves an optional API Gateway path prefix and replaces only
+     * the final endpoint segment.
+     *
+     * @param string $endpoint Endpoint name.
+     * @return string
+     */
+    private function build_endpoint_url(string $endpoint): string {
+        $parts = parse_url($this->apiurl);
+        if (!is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+            return '';
+        }
+
+        if (!in_array($parts['scheme'], ['http', 'https'], true)) {
+            return '';
+        }
+
+        $path = isset($parts['path']) ? (string)$parts['path'] : '';
+        $basepath = preg_replace('#/[^/]*$#', '', $path);
+        if ($basepath === null) {
+            return '';
+        }
+
+        $url = $parts['scheme'] . '://' . $parts['host'];
+        if (!empty($parts['port'])) {
+            $url .= ':' . (int)$parts['port'];
+        }
+
+        return $url . rtrim($basepath, '/') . '/' . ltrim($endpoint, '/');
+    }
 }

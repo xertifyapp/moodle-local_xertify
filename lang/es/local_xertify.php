@@ -78,3 +78,15 @@ $string['student'] = 'Estudiante';
 $string['status'] = 'Estado';
 $string['responsecode'] = 'Codigo de respuesta';
 $string['timemodified'] = 'Ultima modificacion';
+
+$string['mycertificate'] = 'Mi certificado Xertify';
+$string['certificateavailable'] = 'Tu certificado está disponible.';
+$string['certificatenotavailable'] = 'Este certificado Xertify no está disponible.';
+$string['certificatecode'] = 'Código del certificado';
+$string['viewcertificate'] = 'Ver certificado';
+$string['downloadpdf'] = 'Descargar PDF';
+$string['verifyxertify'] = 'Verificar en Xertify';
+$string['pdfserviceerror'] = 'No se pudo obtener el PDF del certificado desde Xertify. Intenta nuevamente más tarde.';
+$string['privacy:metadata:local_xertify_issue:generationid'] = 'Identificador de la generación de Xertify asociada a la emisión.';
+$string['privacy:metadata:local_xertify_issue:certificatecode'] = 'Código individual del certificado Xertify.';
+$string['privacy:metadata:local_xertify_issue:certificateurl'] = 'URL pública de verificación del certificado Xertify.';

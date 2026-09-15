@@ -51,6 +51,9 @@ class provider implements \core_privacy\local\metadata\provider {
             'requesthash' => 'privacy:metadata:local_xertify_issue:requesthash',
             'responsecode' => 'privacy:metadata:local_xertify_issue:responsecode',
             'responsebody' => 'privacy:metadata:local_xertify_issue:responsebody',
+            'generationid' => 'privacy:metadata:local_xertify_issue:generationid',
+            'certificatecode' => 'privacy:metadata:local_xertify_issue:certificatecode',
+            'certificateurl' => 'privacy:metadata:local_xertify_issue:certificateurl',
             'timecreated' => 'privacy:metadata:local_xertify_issue:timecreated',
             'timemodified' => 'privacy:metadata:local_xertify_issue:timemodified',
         ], 'privacy:metadata:local_xertify_issue');
