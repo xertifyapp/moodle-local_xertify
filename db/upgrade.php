@@ -62,5 +62,124 @@ function xmldb_local_xertify_upgrade($oldversion): bool {
         upgrade_plugin_savepoint(true, 2026072200, 'local', 'xertify');
     }
 
+    if ($oldversion < 2026091500) {
+        $table = new xmldb_table('local_xertify_issue');
+
+        $generationid = new xmldb_field(
+            'generationid',
+            XMLDB_TYPE_CHAR,
+            '64',
+            null,
+            null,
+            null,
+            null,
+            'responsebody'
+        );
+
+        if (!$dbman->field_exists($table, $generationid)) {
+            $dbman->add_field($table, $generationid);
+        }
+
+        $certificatecode = new xmldb_field(
+            'certificatecode',
+            XMLDB_TYPE_CHAR,
+            '64',
+            null,
+            null,
+            null,
+            null,
+            'generationid'
+        );
+
+        if (!$dbman->field_exists($table, $certificatecode)) {
+            $dbman->add_field($table, $certificatecode);
+        }
+
+        $certificateurl = new xmldb_field(
+            'certificateurl',
+            XMLDB_TYPE_TEXT,
+            null,
+            null,
+            null,
+            null,
+            null,
+            'certificatecode'
+        );
+
+        if (!$dbman->field_exists($table, $certificateurl)) {
+            $dbman->add_field($table, $certificateurl);
+        }
+
+        // Recover certificate metadata from responses already stored by
+        // previous versions and remove embedded PDF Base64 where present.
+        $records = $DB->get_recordset_select(
+            'local_xertify_issue',
+            'responsebody IS NOT NULL AND responsebody <> ?',
+            [''],
+            '',
+            'id,responsebody'
+        );
+
+        foreach ($records as $record) {
+            $decoded = json_decode($record->responsebody, true);
+            if (!is_array($decoded)) {
+                continue;
+            }
+
+            $update = (object)['id' => $record->id];
+            $changed = false;
+
+            if (!empty($decoded['id']) && is_scalar($decoded['id'])) {
+                $update->generationid = substr((string)$decoded['id'], 0, 64);
+                $changed = true;
+            }
+
+            if (!empty($decoded['certificates']) && is_array($decoded['certificates'])) {
+                $first = reset($decoded['certificates']);
+
+                if (is_array($first)) {
+                    if (!empty($first['codeCertificate'])) {
+                        $update->certificatecode = substr(
+                            (string)$first['codeCertificate'],
+                            0,
+                            64
+                        );
+                        $changed = true;
+                    }
+
+                    if (!empty($first['certificateUrl'])) {
+                        $update->certificateurl = (string)$first['certificateUrl'];
+                        $changed = true;
+                    }
+                }
+
+                foreach ($decoded['certificates'] as &$certificate) {
+                    if (is_array($certificate)) {
+                        unset($certificate['file']);
+                    }
+                }
+                unset($certificate);
+
+                $sanitized = json_encode(
+                    $decoded,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                );
+
+                if ($sanitized !== false) {
+                    $update->responsebody = $sanitized;
+                    $changed = true;
+                }
+            }
+
+            if ($changed) {
+                $DB->update_record('local_xertify_issue', $update);
+            }
+        }
+
+        $records->close();
+
+        upgrade_plugin_savepoint(true, 2026091500, 'local', 'xertify');
+    }
+
     return true;
 }

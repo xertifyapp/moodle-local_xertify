@@ -80,13 +80,18 @@ class issuer {
 
         $client = new client($apiurl, $token);
         $response = $client->issue($payload);
+        $metadata = self::extract_response_metadata($response['body']);
+
         self::record_attempt(
             $courseid,
             $userid,
             $response['ok'] ? 'issued' : 'failed',
             $requesthash,
             $response['code'],
-            $response['body']
+            $metadata['body'],
+            $metadata['generationid'],
+            $metadata['certificatecode'],
+            $metadata['certificateurl']
         );
     }
 
@@ -299,6 +304,67 @@ class issuer {
     }
 
     /**
+     * Extract certificate metadata and remove PDF Base64 from an API response.
+     *
+     * @param string $responsebody Raw Xertify API response.
+     * @return array
+     */
+    private static function extract_response_metadata(string $responsebody): array {
+        $result = [
+            'body' => $responsebody,
+            'generationid' => null,
+            'certificatecode' => null,
+            'certificateurl' => null,
+        ];
+
+        $decoded = json_decode($responsebody, true);
+        if (!is_array($decoded)) {
+            return $result;
+        }
+
+        if (!empty($decoded['id']) && is_scalar($decoded['id'])) {
+            $result['generationid'] = substr((string)$decoded['id'], 0, 64);
+        }
+
+        if (!empty($decoded['certificates']) && is_array($decoded['certificates'])) {
+            $first = reset($decoded['certificates']);
+
+            if (is_array($first)) {
+                if (!empty($first['codeCertificate'])) {
+                    $result['certificatecode'] = substr(
+                        (string)$first['codeCertificate'],
+                        0,
+                        64
+                    );
+                }
+
+                if (!empty($first['certificateUrl'])) {
+                    $result['certificateurl'] = (string)$first['certificateUrl'];
+                }
+            }
+
+            // Never persist the certificate PDF Base64 in Moodle.
+            foreach ($decoded['certificates'] as &$certificate) {
+                if (is_array($certificate)) {
+                    unset($certificate['file']);
+                }
+            }
+            unset($certificate);
+        }
+
+        $sanitized = json_encode(
+            $decoded,
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
+
+        if ($sanitized !== false) {
+            $result['body'] = $sanitized;
+        }
+
+        return $result;
+    }
+
+    /**
      * Store or update a local issuing attempt.
      *
      * @param int $courseid Moodle course ID.
@@ -307,6 +373,9 @@ class issuer {
      * @param string $requesthash Request hash.
      * @param int $responsecode HTTP response code.
      * @param string $responsebody API response body.
+     * @param string|null $generationid Xertify generation identifier.
+     * @param string|null $certificatecode Xertify certificate code.
+     * @param string|null $certificateurl Xertify certificate verification URL.
      * @return void
      */
     private static function record_attempt(
@@ -315,7 +384,10 @@ class issuer {
         string $status,
         string $requesthash,
         int $responsecode,
-        string $responsebody
+        string $responsebody,
+        ?string $generationid = null,
+        ?string $certificatecode = null,
+        ?string $certificateurl = null
     ): void {
         global $DB;
 
@@ -326,6 +398,9 @@ class issuer {
             $record->requesthash = $requesthash;
             $record->responsecode = $responsecode ?: null;
             $record->responsebody = $responsebody;
+            $record->generationid = $generationid;
+            $record->certificatecode = $certificatecode;
+            $record->certificateurl = $certificateurl;
             $record->timemodified = $now;
             $DB->update_record('local_xertify_issue', $record);
             return;
@@ -338,6 +413,9 @@ class issuer {
             'requesthash' => $requesthash,
             'responsecode' => $responsecode ?: null,
             'responsebody' => $responsebody,
+            'generationid' => $generationid,
+            'certificatecode' => $certificatecode,
+            'certificateurl' => $certificateurl,
             'timecreated' => $now,
             'timemodified' => $now,
         ];

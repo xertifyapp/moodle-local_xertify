@@ -31,10 +31,42 @@
  * @return void
  */
 function local_xertify_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context): void {
-    if (!has_capability('local/xertify:manage', $context)) {
+    global $DB, $USER;
+
+    if (has_capability('local/xertify:manage', $context)) {
+        $url = new moodle_url('/local/xertify/course_settings.php', ['courseid' => $course->id]);
+        $navigation->add(
+            get_string('courseconfig', 'local_xertify'),
+            $url,
+            navigation_node::TYPE_SETTING,
+            null,
+            'local_xertify'
+        );
+    }
+
+    if (!isloggedin() || isguestuser()) {
         return;
     }
 
-    $url = new moodle_url('/local/xertify/course_settings.php', ['courseid' => $course->id]);
-    $navigation->add(get_string('courseconfig', 'local_xertify'), $url, navigation_node::TYPE_SETTING, null, 'local_xertify');
+    $issue = $DB->get_record(
+        'local_xertify_issue',
+        ['courseid' => $course->id, 'userid' => $USER->id]
+    );
+
+    if (!$issue || $issue->status !== 'issued' || empty($issue->certificatecode)) {
+        return;
+    }
+
+    $certificateurl = new moodle_url(
+        '/local/xertify/certificate.php',
+        ['courseid' => $course->id]
+    );
+
+    $navigation->add(
+        get_string('mycertificate', 'local_xertify'),
+        $certificateurl,
+        navigation_node::TYPE_CUSTOM,
+        null,
+        'local_xertify_certificate'
+    );
 }
