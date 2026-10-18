@@ -116,7 +116,28 @@ Moodle stores the Xertify generation ID, certificate code, and verification URL.
 
 ## Privacy
 
-This plugin sends certificate recipient data to the configured Xertify API. It stores local issuing-attempt metadata, including the Xertify generation ID, certificate code, and verification URL, for audit and certificate access. Certificate PDF/Base64 content is not stored permanently in Moodle. See the Moodle privacy metadata declared in `classes/privacy/provider.php`.
+This plugin sends recipient data to the configured Xertify API during normal
+issuance. Locally it stores the user/course association, issue status, request
+hash, HTTP result, stored response or dry-run payload, generation ID, certificate
+code/URL and timestamps. Moodle Privacy API can export and delete these records
+within approved course contexts, including an approved subset of users.
+
+Privacy operations are local: they do not contact Xertify, issue a certificate or
+revoke/delete an external certificate. Deleting student data preserves the
+course's administrative configuration, enabled state and API token. It removes
+the local certificate association and duplicate-attempt record; any future normal
+course-completion event remains governed by the unchanged issuer.
+
+Exports include the stored issue fields and a safe structured response projection.
+Matching certificate entries and dry-run participants identified by the issuer's
+course/user key are retained, including their scalar personal/profile data.
+Credentials, embedded documents, unverified recipients, opaque messages and
+unsupported structures are omitted with an explanatory note. This also protects
+against older responses whose PDF/secret cleanup was incomplete. Export never
+changes the stored response or fetches additional data. Orphan issues without a
+valid course/context are skipped, not assigned a fictitious context or deleted
+outside an approved scope; resolving such historical inconsistencies remains an
+administrative task.
 
 ## License
 

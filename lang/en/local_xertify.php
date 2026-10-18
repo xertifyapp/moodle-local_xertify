@@ -23,6 +23,9 @@
  */
 
 $string['pluginname'] = 'Xertify';
+$string['privacy:export:issuance'] = 'Certificate issuance';
+$string['privacy:export:redacted'] = '[Redacted]';
+$string['privacy:export:responsebody'] = 'Structured stored data for this issue only. Credentials, embedded documents, unverified recipients, opaque text and unsupported fields are omitted. No external data was fetched.';
 $string['xertify:manage'] = 'Manage Xertify certificate settings';
 $string['privacy:metadata:xertify_api'] = 'Recipient data is sent to the configured Xertify API to issue digital certificates.';
 $string['privacy:metadata:xertify_api:firstname'] = 'The recipient first name.';
@@ -35,6 +38,7 @@ $string['privacy:metadata:xertify_api:course'] = 'Course data used in certificat
 $string['privacy:metadata:xertify_api:profilefields'] = 'Custom profile fields used as certificate dynamic fields.';
 $string['privacy:metadata:local_xertify_issue'] = 'Stores Xertify certificate issuing attempts for audit and troubleshooting.';
 $string['privacy:metadata:local_xertify_issue:courseid'] = 'The Moodle course related to the issuing attempt.';
+$string['privacy:metadata:local_xertify_issue:id'] = 'The local identifier of the user-associated issuance record.';
 $string['privacy:metadata:local_xertify_issue:userid'] = 'The Moodle user related to the issuing attempt.';
 $string['privacy:metadata:local_xertify_issue:status'] = 'The issuing attempt status.';
 $string['privacy:metadata:local_xertify_issue:requesthash'] = 'A hash of the Xertify API request payload.';
