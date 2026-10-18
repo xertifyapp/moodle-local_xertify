@@ -46,6 +46,11 @@ function local_xertify_extend_navigation_course(navigation_node $navigation, std
         return;
     }
 
+    $activity = \local_xertify\local\activity_access::legacy_target((int)$course->id);
+    if ($activity === false) {
+        return;
+    }
+
     $service = new \local_xertify\local\certificate_service();
     $certificate = $service->get_for_user((int)$course->id, null, $context);
     if (!$certificate['canrequestpdf']) {
@@ -56,6 +61,10 @@ function local_xertify_extend_navigation_course(navigation_node $navigation, std
         '/local/xertify/certificate.php',
         ['courseid' => $course->id]
     );
+
+    if ($activity instanceof cm_info) {
+        $certificateurl = new moodle_url('/mod/xertifycertificate/view.php', ['id' => $activity->id]);
+    }
 
     $navigation->add(
         get_string('mycertificate', 'local_xertify'),

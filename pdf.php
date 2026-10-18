@@ -36,6 +36,7 @@ $course = $DB->get_record('course', ['id' => $certificate['courseid']], '*', MUS
 $context = context_course::instance($course->id);
 
 require_login($course);
+\local_xertify\local\activity_access::require_legacy_access((int)$course->id);
 
 $response = $service->get_pdf($issueid, current_language(), (int)$course->id, $context);
 if (!$response['ok']) {

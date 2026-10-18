@@ -31,6 +31,7 @@ $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $context = context_course::instance($courseid);
 
 require_login($course);
+\local_xertify\local\activity_access::require_legacy_access((int)$course->id);
 
 $service = new \local_xertify\local\certificate_service();
 $certificate = $issueid

@@ -207,3 +207,28 @@ to enabled and disabled integrations, including merge and replace-content restor
 If Moodle's "Overwrite course configuration" option is disabled, core skips the
 course plugin configuration entirely; a destination without an integration stays
 without one. Backup/restore does not call the issuer or the Xertify API.
+
+## Phase 3 development dependency and optional activity policy
+
+Development version `2026101800` / `1.1.0-dev` (alpha) replaces `2026091500` /
+`1.0.3` on the feature branch only. This gives `mod_xertifycertificate` a real
+minimum dependency for the shared read service and safe backup/restore contract.
+No schema, issuer, observer, event registration or emission logic changes.
+No tag or release has been published.
+
+The optional activity lives in the separate sibling development repository
+`moodle-mod_xertifycertificate`, installed independently at
+`mod/xertifycertificate`. This local plugin has no dependency on that module.
+
+`activity_access` detects instances through core `get_fast_modinfo()`. Courses
+without instances retain their old behavior. With instances, legacy certificate
+and PDF routes require at least one user-visible instance with the view
+capability; navigation links to that instance. Multiple restrictions use OR.
+`local/xertify:manage` retains administrative legacy access, consistent with the
+existing issue-inspection permission. No remote calls are made by this policy.
+Module routes enforce each activity's own availability and current-user access.
+
+Activity view completion is optional and does not mean certificate issuance.
+Do not make the certificate activity a course-completion prerequisite when its
+availability depends on completing that same course. Core completion can still
+trigger the existing course-completed observer under administrator configuration.
