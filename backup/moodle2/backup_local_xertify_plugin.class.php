@@ -36,14 +36,13 @@ class backup_local_xertify_plugin extends backup_local_plugin {
      * @return backup_plugin_element
      */
     protected function define_course_plugin_structure() {
-        $plugin = $this->get_plugin_element(null, '../../id');
+        $plugin = $this->get_plugin_element();
         $wrapper = new backup_nested_element($this->get_recommended_name());
         $config = new backup_nested_element('courseconfig', ['id'], [
             'enabled',
             'templateid',
             'groupid',
             'idtype',
-            'apitoken',
             'emitrule',
             'dynamicdata',
             'notification_sms',
@@ -56,7 +55,14 @@ class backup_local_xertify_plugin extends backup_local_plugin {
         $plugin->add_child($wrapper);
         $wrapper->add_child($config);
 
-        $config->set_source_table('local_xertify_course', ['courseid' => backup::VAR_COURSEID]);
+        // Select only portable configuration: credentials and issue data never enter the backup source.
+        $config->set_source_sql(
+            'SELECT id, enabled, templateid, groupid, idtype, emitrule, dynamicdata,
+                    notification_sms, notification_email, notification_whatsapp, timecreated, timemodified
+               FROM {local_xertify_course}
+              WHERE courseid = :courseid',
+            ['courseid' => backup::VAR_COURSEID]
+        );
 
         return $plugin;
     }

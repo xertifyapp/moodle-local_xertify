@@ -50,17 +50,25 @@ class restore_local_xertify_plugin extends restore_local_plugin {
     public function process_local_xertify_courseconfig(array $data): void {
         global $DB;
 
-        $data = (object)$data;
         $courseid = $this->task->get_courseid();
+        // The destination owns its integration, including deliberately disabled configurations.
+        // This also protects merge/delete-content restores and repeated plugin records.
+        if ($DB->record_exists('local_xertify_course', ['courseid' => $courseid])) {
+            return;
+        }
+
+        $data = (object)$data;
         $now = time();
 
+        // Explicit allowlist: legacy tokens and unknown fields are never imported.
+        // Empty override plus disabled issuing requires administrator review before activation.
         $record = (object)[
             'courseid' => $courseid,
-            'enabled' => (int)($data->enabled ?? 0),
+            'enabled' => 0,
             'templateid' => (string)($data->templateid ?? ''),
             'groupid' => (string)($data->groupid ?? ''),
             'idtype' => (string)($data->idtype ?? ''),
-            'apitoken' => (string)($data->apitoken ?? ''),
+            'apitoken' => '',
             'emitrule' => (string)($data->emitrule ?? 'course_completed'),
             'dynamicdata' => (string)($data->dynamicdata ?? ''),
             'notification_sms' => (int)($data->notification_sms ?? 0),
@@ -69,13 +77,6 @@ class restore_local_xertify_plugin extends restore_local_plugin {
             'timecreated' => !empty($data->timecreated) ? (int)$data->timecreated : $now,
             'timemodified' => $now,
         ];
-
-        $existing = $DB->get_record('local_xertify_course', ['courseid' => $courseid]);
-        if ($existing) {
-            $record->id = $existing->id;
-            $DB->update_record('local_xertify_course', $record);
-            return;
-        }
 
         $DB->insert_record('local_xertify_course', $record);
     }

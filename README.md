@@ -185,4 +185,25 @@ phpcs --standard=moodle certificate.php pdf.php lib.php \
 
 The plugin version and minimum Moodle requirement are intentionally unchanged.
 Align the documented Moodle 4.1+ target with `version.php` during release planning.
-Backup credential exclusion and safe restore remain pending for Phase 2.
+
+### Course backup and restore safety (unreleased)
+
+Course backups include only portable Xertify configuration: original enabled
+state, template/group IDs, document type, rule, dynamic data, notification flags
+and timestamps. They exclude the API token and all issue/certificate records.
+Dynamic data is administrator-authored certificate content; do not put credentials
+in that free-text field or in other course content.
+
+When the destination has no Xertify configuration, restore always sets
+`enabled = 0` and `apitoken = ''`, including for old backups containing a token.
+An administrator must review Template ID, Group ID, token source, rule and
+notifications before enabling issuance. An empty course token uses the existing
+global/environment fallback; disabled issuance prevents automatic use before review.
+Course duplication follows the same policy and does not inherit certificates.
+
+If a destination configuration already exists, restore preserves **all** its
+fields, including activation and token, instead of overwriting it. This applies
+to enabled and disabled integrations, including merge and replace-content restores.
+If Moodle's "Overwrite course configuration" option is disabled, core skips the
+course plugin configuration entirely; a destination without an integration stays
+without one. Backup/restore does not call the issuer or the Xertify API.
