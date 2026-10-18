@@ -121,3 +121,68 @@ This plugin sends certificate recipient data to the configured Xertify API. It s
 ## License
 
 GNU GPL v3 or later.
+
+
+## Shared certificate read contract (unreleased)
+
+`local_xertify\local\certificate_service` provides the read-only contract for
+certificate consumers. Callers must first establish Moodle course login and,
+where applicable, module availability and view capability. The service always
+checks the current authenticated actor's ownership or `local/xertify:manage`.
+Pass the expected course and context whenever they are known; module contexts
+are accepted only when they belong to that course. Never authorize with a code
+or a presentation array supplied by a browser.
+
+Public operations:
+
+- `get_for_user(int $courseid, ?int $userid = null, ?\context $context = null): array`
+  defaults to the current user; another owner requires management permission.
+- `get_by_id(int $issueid, ?int $courseid = null, ?\context $context = null): array`
+  reloads and authorizes the stored issue. Omitting the expected course is for
+  endpoints that resolve their course from the issue, such as the existing PDF route.
+- `get_wallet_url(string $certificatecode, string $certificateurl = ''): string`
+  is a pure URL allowlist/fallback operation, not an authorization mechanism.
+- `get_pdf(int $issueid, string $language = 'es', ?int $courseid = null, ?\context $context = null): array`
+  reauthorizes the persisted association and uses the existing API client. The
+  token stays server-side and only decoded, validated PDF bytes are returned.
+
+`certificate_access::require_user(int $courseid, int $userid, ?\context $context = null): \context`
+and `certificate_access::require_issue(\stdClass $issue, int $courseid, ?\context $context = null): \context`
+centralize ownership and course/context consistency. The latter accepts a trusted
+server-loaded record, never an object from the request. Neither replaces Moodle
+login or activity availability checks.
+
+Presentation arrays contain `issueid`, `courseid`, `status`, `state`,
+`generationid`, `certificatecode`, `walleturl`, `timecreated`, `timemodified`,
+`canrequestpdf` and `pdfavailability`. Only managers receive `responsecode`.
+They never contain response bodies, request hashes, credentials or PDF/Base64 data.
+
+Interpreted states are `noissue`, `pending`, `issued`, `issuedwithoutcode`,
+`failed`, `dryrun` and `unknown`. `canrequestpdf` means locally issued with a
+code, not remote availability. `pdfavailability` remains `unknown` until an
+explicit PDF request. The PDF result has `ok`, `state`, `httpcode`, `pdf` and
+`filename`: state is `available` for a validated PDF, `unavailable` for HTTP
+404/410, otherwise `error`. It does not infer why a remote certificate is missing.
+Authorization, missing-issue, missing-configuration and missing-code conditions
+raise Moodle exceptions. Consumers render/stream results; the service does not.
+
+The existing pages retain their interface, iframe and inline/download behaviour.
+Navigation makes one issue query and no external request. No method in this
+contract issues, repairs, replaces, updates or persists certificates. There is
+no activity-module restriction policy in this phase.
+
+### Contract tests
+
+Run in a disposable Moodle PHPUnit installation, never with production database
+configuration. The suite uses `advanced_testcase`, real Moodle records/roles and
+a replacement for the external client transport; no Xertify API is contacted.
+
+```sh
+vendor/bin/phpunit --testsuite local_xertify_testsuite
+phpcs --standard=moodle certificate.php pdf.php lib.php \
+  classes/local/certificate_service.php classes/local/certificate_access.php tests
+```
+
+The plugin version and minimum Moodle requirement are intentionally unchanged.
+Align the documented Moodle 4.1+ target with `version.php` during release planning.
+Backup credential exclusion and safe restore remain pending for Phase 2.

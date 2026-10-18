@@ -32,27 +32,12 @@ $context = context_course::instance($courseid);
 
 require_login($course);
 
-if ($issueid) {
-    $issue = $DB->get_record(
-        'local_xertify_issue',
-        ['id' => $issueid, 'courseid' => $courseid],
-        '*',
-        MUST_EXIST
-    );
+$service = new \local_xertify\local\certificate_service();
+$certificate = $issueid
+    ? $service->get_by_id($issueid, $courseid, $context)
+    : $service->get_for_user($courseid, null, $context);
 
-    if ((int)$issue->userid !== (int)$USER->id) {
-        require_capability('local/xertify:manage', $context);
-    }
-} else {
-    $issue = $DB->get_record(
-        'local_xertify_issue',
-        ['courseid' => $courseid, 'userid' => $USER->id],
-        '*',
-        MUST_EXIST
-    );
-}
-
-if ($issue->status !== 'issued' || empty($issue->certificatecode)) {
+if (!$certificate['canrequestpdf']) {
     throw new moodle_exception('certificatenotavailable', 'local_xertify');
 }
 
@@ -71,32 +56,15 @@ $PAGE->set_title(get_string('mycertificate', 'local_xertify'));
 $PAGE->set_heading($course->fullname);
 
 $pdfurl = new moodle_url('/local/xertify/pdf.php', [
-    'issueid' => $issue->id,
+    'issueid' => $certificate['issueid'],
 ]);
 
 $downloadurl = new moodle_url('/local/xertify/pdf.php', [
-    'issueid' => $issue->id,
+    'issueid' => $certificate['issueid'],
     'download' => 1,
 ]);
 
-$verifyurl = '';
-if (!empty($issue->certificateurl)) {
-    $candidate = trim((string)$issue->certificateurl);
-    $parts = parse_url($candidate);
-
-    if (
-        is_array($parts)
-        && ($parts['scheme'] ?? '') === 'https'
-        && strtolower((string)($parts['host'] ?? '')) === 'wallet.xertify.co'
-    ) {
-        $verifyurl = $candidate;
-    }
-}
-
-if ($verifyurl === '') {
-    $verifyurl = 'https://wallet.xertify.co/certificates/'
-        . rawurlencode((string)$issue->certificatecode);
-}
+$verifyurl = $certificate['walleturl'];
 
 echo $OUTPUT->header();
 
@@ -112,7 +80,7 @@ echo html_writer::tag(
     html_writer::tag(
         'strong',
         get_string('certificatecode', 'local_xertify') . ': '
-    ) . s($issue->certificatecode)
+    ) . s($certificate['certificatecode'])
 );
 
 $buttons = [];

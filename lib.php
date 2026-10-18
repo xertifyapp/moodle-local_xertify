@@ -31,8 +31,6 @@
  * @return void
  */
 function local_xertify_extend_navigation_course(navigation_node $navigation, stdClass $course, context_course $context): void {
-    global $DB, $USER;
-
     if (has_capability('local/xertify:manage', $context)) {
         $url = new moodle_url('/local/xertify/course_settings.php', ['courseid' => $course->id]);
         $navigation->add(
@@ -48,12 +46,9 @@ function local_xertify_extend_navigation_course(navigation_node $navigation, std
         return;
     }
 
-    $issue = $DB->get_record(
-        'local_xertify_issue',
-        ['courseid' => $course->id, 'userid' => $USER->id]
-    );
-
-    if (!$issue || $issue->status !== 'issued' || empty($issue->certificatecode)) {
+    $service = new \local_xertify\local\certificate_service();
+    $certificate = $service->get_for_user((int)$course->id, null, $context);
+    if (!$certificate['canrequestpdf']) {
         return;
     }
 
