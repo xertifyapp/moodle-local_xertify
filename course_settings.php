@@ -102,15 +102,15 @@ if ($data = $form->get_data()) {
 echo $OUTPUT->header();
 $form->display();
 
+// Select name fields without replacing the issue ID used by reset actions.
+$namefields = \core_user\fields::for_name()->get_sql('u')->selects;
 $attempts = $DB->get_records_sql(
     "SELECT xi.id,
             xi.userid,
             xi.status,
             xi.responsecode,
             xi.timemodified,
-            u.firstname,
-            u.lastname,
-            u.email
+            u.email{$namefields}
        FROM {local_xertify_issue} xi
        JOIN {user} u ON u.id = xi.userid
       WHERE xi.courseid = ?
