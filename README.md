@@ -21,24 +21,47 @@ Xertify Certificates is a Moodle local plugin that issues Xertify digital certif
 
 ## Requirements
 
-- Moodle 4.1 or later.
+- Moodle 4.1–5.2; validated with the latest stable patches in the compatibility matrix.
+- Xertify Certificates 1.1.0, plugin build `2026101802`.
 - PHP version supported by the installed Moodle release.
 - Outbound HTTPS access from Moodle to the configured Xertify API endpoint.
 - A Xertify account, API token, group ID, and template ID.
 
-## Installation
+## Installation and optional activity
 
-1. Download the plugin ZIP.
-2. In Moodle, go to `Site administration > Plugins > Install plugins`.
-3. Upload the ZIP file and complete the installation.
-4. Go to `Site administration > Plugins > Local plugins > Xertify`.
-5. Configure the Xertify API URL and API token.
+1. Install or update **Xertify Certificates (`local_xertify`) 1.1.0** first.
+   Upload `local_xertify_1.1.0.zip` in **Site administration > Plugins > Install plugins**
+   and complete Moodle's upgrade. For manual installation, extract `xertify/`
+   into `local/` before Moodle 5.1 or `public/local/` in Moodle 5.1 and later.
+2. To provide a certificate activity, install the separate
+   **`mod_xertifycertificate` 1.0.0** package next. Upload
+   `mod_xertifycertificate_1.0.0.zip`, or extract `xertifycertificate/` into
+   `mod/` before Moodle 5.1 or `public/mod/` in Moodle 5.1 and later,
+   then complete the upgrade.
+3. Configure the Xertify integration globally and in each intended course.
+4. Turn course editing on and select **Add an activity or resource >
+   Xertify Certificate / Certificado Xertify**.
+5. Optionally put it in a **Certificación** section, then set its name,
+   description, standard access restrictions and optional view completion.
 
-The default API endpoint is:
+Token, Template ID, Group ID and issuance settings belong only to the local
+plugin. The activity package is installed separately and contains no duplicate
+integration settings. Existing courses do not gain activities automatically.
 
-```text
-https://api.xertify.co/v4createRequest
-```
+## Upgrading from local_xertify 1.0.3
+
+**Do not uninstall the existing local plugin. Upgrade it in place.**
+
+1. Back up Moodle files, moodledata and the database according to the site's
+   administration policy.
+2. Replace/update `local_xertify` 1.0.3 with 1.1.0 and complete Moodle's upgrade.
+3. Verify the existing course integration and certificate associations.
+4. Install `mod_xertifycertificate` 1.0.0 after the local upgrade succeeds.
+5. Add the activity to each course where teachers want it available.
+
+The module requires local plugin build `2026101802` or later; local 1.0.3 is
+insufficient. This upgrade preserves stored configuration and certificate
+associations; it does not reissue certificates or create course activities.
 
 ## Course Configuration
 
@@ -144,7 +167,7 @@ administrative task.
 GNU GPL v3 or later.
 
 
-## Shared certificate read contract (unreleased)
+## Shared certificate read contract
 
 `local_xertify\local\certificate_service` provides the read-only contract for
 certificate consumers. Callers must first establish Moodle course login and,
@@ -189,8 +212,7 @@ raise Moodle exceptions. Consumers render/stream results; the service does not.
 
 The existing pages retain their interface, iframe and inline/download behaviour.
 Navigation makes one issue query and no external request. No method in this
-contract issues, repairs, replaces, updates or persists certificates. There is
-no activity-module restriction policy in this phase.
+contract issues, repairs, replaces, updates or persists certificates. Activity-module restrictions also protect the legacy routes as described below.
 
 ### Contract tests
 
@@ -204,10 +226,9 @@ phpcs --standard=moodle certificate.php pdf.php lib.php \
   classes/local/certificate_service.php classes/local/certificate_access.php tests
 ```
 
-The plugin version and minimum Moodle requirement are intentionally unchanged.
-Align the documented Moodle 4.1+ target with `version.php` during release planning.
+Release metadata declares Moodle 4.1 as the minimum and a supported branch range of 4.1–5.2.
 
-### Course backup and restore safety (unreleased)
+### Course backup and restore safety
 
 Course backups include only portable Xertify configuration: original enabled
 state, template/group IDs, document type, rule, dynamic data, notification flags
@@ -229,17 +250,11 @@ If Moodle's "Overwrite course configuration" option is disabled, core skips the
 course plugin configuration entirely; a destination without an integration stays
 without one. Backup/restore does not call the issuer or the Xertify API.
 
-## Phase 3 development dependency and optional activity policy
+## Optional activity access policy
 
-Development version `2026101800` / `1.1.0-dev` (alpha) replaces `2026091500` /
-`1.0.3` on the feature branch only. This gives `mod_xertifycertificate` a real
-minimum dependency for the shared read service and safe backup/restore contract.
-No schema, issuer, observer, event registration or emission logic changes.
-No tag or release has been published.
-
-The optional activity lives in the separate sibling development repository
-`moodle-mod_xertifycertificate`, installed independently at
-`mod/xertifycertificate`. This local plugin has no dependency on that module.
+The optional activity is the separate `mod_xertifycertificate` 1.0.0 package,
+installed independently at `mod/xertifycertificate`. The local plugin has no
+dependency on the activity and continues to support courses without it.
 
 `activity_access` detects instances through core `get_fast_modinfo()`. Courses
 without instances retain their old behavior. With instances, legacy certificate
@@ -253,3 +268,13 @@ Activity view completion is optional and does not mean certificate issuance.
 Do not make the certificate activity a course-completion prerequisite when its
 availability depends on completing that same course. Core completion can still
 trigger the existing course-completed observer under administrator configuration.
+
+## Partial restore and Moodle App scope
+
+If a partial restore omits an activity referenced by an access restriction,
+Moodle may retain an unresolved condition. In the tested Moodle 4.1–5.2 patches,
+this becomes `cm = 0` and students remain blocked. Teachers must review the
+restriction; the plugin does not invent a replacement prerequisite.
+
+The initial release supports Moodle's responsive web experience. Dedicated
+native Moodle App integration is outside this release's scope.

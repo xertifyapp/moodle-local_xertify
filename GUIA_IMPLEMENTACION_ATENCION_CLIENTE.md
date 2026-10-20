@@ -10,7 +10,7 @@ El cliente no debe modificar bases de datos ni desarrollar codigo. La integracio
 
 ## Compatibilidad
 
-- Moodle 4.1 o superior.
+- Moodle 4.1–5.2 (combinaciones PHP compatibles validadas).
 - PHP compatible con la version de Moodle instalada.
 - El servidor Moodle debe tener salida HTTPS hacia:
 
@@ -416,3 +416,26 @@ Variables dinamicas de la plantilla:
 Campo donde el cliente guarda el documento del estudiante:
 Fecha estimada de prueba:
 ```
+
+## Actualización 1.0.3 y actividad de certificado
+
+No desinstalar `local_xertify` 1.0.3: hacer backup según la política del
+administrador, actualizar primero a 1.1.0 y completar el upgrade de Moodle.
+Verificar la configuración existente. Después se puede instalar el paquete
+independiente `mod_xertifycertificate_1.0.0.zip` y completar su instalación.
+
+En cada curso, activar edición y elegir **Añadir una actividad o recurso >
+Certificado Xertify**; opcionalmente usar la sección **Certificación**. Las
+actividades no se crean automáticamente. Token, Template y Group siguen
+configurándose exclusivamente en el plugin local.
+
+Aplicar restricciones estándar si se desea. Evitar que la finalización del curso
+dependa de ver el certificado cuando su emisión depende de finalizar ese curso.
+Al restaurar o duplicar un curso, no se copian certificados ni el token específico;
+una integración nueva queda deshabilitada y debe revisarse antes de activarla.
+Si una restauración parcial omite un requisito, revisar la restricción que Moodle
+puede dejar sin referencia válida. Las configuraciones de destino ya existentes
+se conservan conforme a la política de restore.
+
+La primera release cubre la experiencia web responsive; la integración nativa
+específica con Moodle App queda fuera de alcance.

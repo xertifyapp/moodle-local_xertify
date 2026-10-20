@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 - 2026-10-18 (release candidate)
+
+- Adds a secure shared certificate read service and reusable authorization.
+- Integrates with the separately installed Xertify Certificate activity and protects legacy routes when activities restrict access.
+- Excludes API tokens and certificate records from course backup; new restored configurations have issuance disabled and an empty token override.
+- Provides the complete Moodle Privacy API for local certificate associations, without revoking external certificates.
+- Preserves certificate viewing, PDF download and Wallet links; PDF bytes are retrieved on demand, not stored in Moodle.
+- Validated on Moodle 4.1–5.2; the minimum requirement is now aligned to Moodle 4.1.
+- Respects Moodle full-name formats, including middle, alternate and phonetic names, in recent certificate attempts.
+- Keeps the main issuance flow without intentional functional changes.
+
 ## 1.0.3 - 2026-09-15
 
 - Added learner-facing **My Xertify certificate** page inside Moodle courses.

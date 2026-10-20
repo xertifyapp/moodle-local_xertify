@@ -6,7 +6,7 @@ Esta guia es para instalar y configurar el plugin sin tocar codigo.
 
 1. Entrar a Moodle como administrador.
 2. Ir a `Administracion del sitio > Plugins > Instalar plugins`.
-3. Subir el archivo `local_xertify.zip`.
+3. Subir el archivo `local_xertify_1.1.0.zip`.
 4. Confirmar la instalacion.
 5. Moodle mostrara una pantalla de verificacion. Continuar hasta finalizar.
 
@@ -111,3 +111,26 @@ Si el certificado no se emite, validar:
 - El token API es valido.
 - `Solo simular - no emitir certificados` esta desactivado.
 - Las notificaciones del curso estan activadas solo si el cliente quiere que Xertify envie mensajes.
+
+## Actualización 1.0.3 y actividad de certificado
+
+No desinstalar `local_xertify` 1.0.3: hacer backup según la política del
+administrador, actualizar primero a 1.1.0 y completar el upgrade de Moodle.
+Verificar la configuración existente. Después se puede instalar el paquete
+independiente `mod_xertifycertificate_1.0.0.zip` y completar su instalación.
+
+En cada curso, activar edición y elegir **Añadir una actividad o recurso >
+Certificado Xertify**; opcionalmente usar la sección **Certificación**. Las
+actividades no se crean automáticamente. Token, Template y Group siguen
+configurándose exclusivamente en el plugin local.
+
+Aplicar restricciones estándar si se desea. Evitar que la finalización del curso
+dependa de ver el certificado cuando su emisión depende de finalizar ese curso.
+Al restaurar o duplicar un curso, no se copian certificados ni el token específico;
+una integración nueva queda deshabilitada y debe revisarse antes de activarla.
+Si una restauración parcial omite un requisito, revisar la restricción que Moodle
+puede dejar sin referencia válida. Las configuraciones de destino ya existentes
+se conservan conforme a la política de restore.
+
+La primera release cubre la experiencia web responsive; la integración nativa
+específica con Moodle App queda fuera de alcance.
