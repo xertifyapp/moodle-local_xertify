@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_xertify';
-$plugin->version = 2026101802;
+$plugin->version = 2026102100;
 $plugin->requires = 2022112800;
 $plugin->supported = [401, 502];
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.1.0';
+$plugin->release = '1.1.1';

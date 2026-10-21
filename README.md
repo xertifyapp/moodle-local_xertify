@@ -22,26 +22,26 @@ Xertify Certificates is a Moodle local plugin that issues Xertify digital certif
 ## Requirements
 
 - Moodle 4.1–5.2; validated with the latest stable patches in the compatibility matrix.
-- Xertify Certificates 1.1.0, plugin build `2026101802`.
+- Xertify Certificates 1.1.1, plugin build `2026102100`.
 - PHP version supported by the installed Moodle release.
 - Outbound HTTPS access from Moodle to the configured Xertify API endpoint.
 - A Xertify account, API token, group ID, and template ID.
 
 ## Installation and optional activity
 
-1. Install or update **Xertify Certificates (`local_xertify`) 1.1.0** first.
-   Upload `local_xertify_1.1.0.zip` in **Site administration > Plugins > Install plugins**
+1. Install or update **Xertify Certificates (`local_xertify`) 1.1.1** first.
+   Upload `local_xertify_1.1.1.zip` in **Site administration > Plugins > Install plugins**
    and complete Moodle's upgrade. For manual installation, extract `xertify/`
    into `local/` before Moodle 5.1 or `public/local/` in Moodle 5.1 and later.
 2. To provide a certificate activity, install the separate
-   **`mod_xertifycertificate` 1.0.0** package next. Upload
-   `mod_xertifycertificate_1.0.0.zip`, or extract `xertifycertificate/` into
+   **`mod_xertifycertificate` 1.0.1** package next. Upload
+   `mod_xertifycertificate_1.0.1.zip`, or extract `xertifycertificate/` into
    `mod/` before Moodle 5.1 or `public/mod/` in Moodle 5.1 and later,
    then complete the upgrade.
 3. Configure the Xertify integration globally and in each intended course.
 4. Turn course editing on and select **Add an activity or resource >
-   Xertify Certificate / Certificado Xertify**.
-5. Optionally put it in a **Certificación** section, then set its name,
+   Xertify Certificate**.
+5. Optionally put it in a **Certification** section, then set its name,
    description, standard access restrictions and optional view completion.
 
 Token, Template ID, Group ID and issuance settings belong only to the local
@@ -54,12 +54,12 @@ integration settings. Existing courses do not gain activities automatically.
 
 1. Back up Moodle files, moodledata and the database according to the site's
    administration policy.
-2. Replace/update `local_xertify` 1.0.3 with 1.1.0 and complete Moodle's upgrade.
+2. Replace/update `local_xertify` 1.0.3 with 1.1.1 and complete Moodle's upgrade.
 3. Verify the existing course integration and certificate associations.
-4. Install `mod_xertifycertificate` 1.0.0 after the local upgrade succeeds.
+4. Install `mod_xertifycertificate` 1.0.1 after the local upgrade succeeds.
 5. Add the activity to each course where teachers want it available.
 
-The module requires local plugin build `2026101802` or later; local 1.0.3 is
+The module requires local plugin build `2026102100` or later; local 1.0.3 and 1.1.0 are
 insufficient. This upgrade preserves stored configuration and certificate
 associations; it does not reissue certificates or create course activities.
 
@@ -252,7 +252,7 @@ without one. Backup/restore does not call the issuer or the Xertify API.
 
 ## Optional activity access policy
 
-The optional activity is the separate `mod_xertifycertificate` 1.0.0 package,
+The optional activity is the separate `mod_xertifycertificate` 1.0.1 package,
 installed independently at `mod/xertifycertificate`. The local plugin has no
 dependency on the activity and continues to support courses without it.
 
@@ -278,3 +278,12 @@ restriction; the plugin does not invent a replacement prerequisite.
 
 The initial release supports Moodle's responsive web experience. Dedicated
 native Moodle App integration is outside this release's scope.
+
+## Language distribution
+
+This release distributes English strings only for Moodle Marketplace compliance.
+Spanish translation source has been preserved for migration to Moodle AMOS.
+It has not been published to AMOS as part of this release. When a plugin-specific
+translation is not installed, Moodle falls back to the bundled English strings.
+Certificate issuance, authorization, PDF, backup/restore and Privacy behavior are
+unchanged by this packaging update.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2026-10-21 (release candidate)
+
+- Meets Moodle Marketplace packaging policy by distributing English strings only.
+- Spanish translation source has been preserved for migration to Moodle AMOS; it is not published to AMOS in this release.
+- No production functional changes; language distribution and release metadata only.
+
 ## 1.1.0 - 2026-10-18 (release candidate)
 
 - Adds a secure shared certificate read service and reusable authorization.
